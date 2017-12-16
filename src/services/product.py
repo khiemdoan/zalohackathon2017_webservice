@@ -142,7 +142,7 @@ def _generate_description(product):
             camera = bginfo.get('Camera')
             screen = bginfo.get('Màn hình')
             memory = bginfo.get('RAM')
-            cpu = bginfo.get('CP')
+            cpu = bginfo.get('CPU')
             if type(camera) is str:
                 description += ' với camera {}'.format(camera)
             if type(screen) is str:
@@ -159,7 +159,7 @@ def _generate_description(product):
         description = 'Laptop {}'.format(product['name'])
         bginfo = product.get('bginfo')
         if type(bginfo) is dict:
-            cpu = bginfo.get('CP')
+            cpu = bginfo.get('CPU')
             screen = bginfo.get('Màn hình')
             memory = bginfo.get('RAM')
             card = bginfo.get('Đồ họa')
@@ -179,7 +179,7 @@ def _generate_description(product):
         description = 'Máy tính bảng {}'.format(product['name'])
         bginfo = product.get('bginfo')
         if type(bginfo) is dict:
-            cpu = bginfo.get('CP')
+            cpu = bginfo.get('CPU')
             memory = bginfo.get('RAM')
             camera = bginfo.get('Camera')
             screen = bginfo.get('Màn hình')
@@ -204,9 +204,16 @@ def find():
     category = request_info.get('category', None)
     name = request_info.get('name')
     brand = request_info.get('brand')
-    max_price = request_info.get('max_price')
-    min_price = request_info.get('min_price')
     properties = request_info.get('properties')
+
+    try:
+        max_price = int(request_info.get('max_price'))
+    except:
+        max_price = None
+    try:
+        min_price = int(request_info.get('min_price'))
+    except:
+        min_price = None
 
     product_model = Product()
 
@@ -214,6 +221,7 @@ def find():
         products = product_model.get_by_category(category)
     else:
         products = product_model.get_all()
+
     products = [_create_response_product(product) for product in products]
 
     if type(name) is str and len(name) > 0:
@@ -241,6 +249,10 @@ def find():
                         except:
                             pass
                         return_products.append(product)
+        else:
+            return_products = products
+    else:
+        return_products = products
 
     return jsonify({'products': return_products[:5]})
 

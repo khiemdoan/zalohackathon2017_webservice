@@ -21,13 +21,15 @@ class Product:
             with open(file_path, 'r') as infile:
                 data = json.load(infile)
                 for product in data:
-                    self._cache.hset('products', product['productId'], json.dumps(product))
-                    number = self._cache.hget('categories', product['category'])
+                    productId = product['productId']
+                    category = str(product['category']).lower()
+                    self._cache.hset('products', productId, json.dumps(product))
+                    number = self._cache.hget('categories', category)
                     if number is None:
                         number = 0
                     number = int(number)
-                    self._cache.hset('categories', product['category'], number + 1)
-                    self._cache.hset(product['category'], product['productId'], json.dumps(product))
+                    self._cache.hset('categories', category, number + 1)
+                    self._cache.hset(category, productId, json.dumps(product))
         except:
             pass
 
@@ -37,6 +39,7 @@ class Product:
         return [json.loads(product) for product in products]
 
     def get_by_category(self, category):
+        category = str(category).lower()
         product_dict = self._cache.hgetall(category)
         products = [product for product_id, product in product_dict.items()]
         return [json.loads(product) for product in products]
